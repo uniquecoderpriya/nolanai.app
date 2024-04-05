@@ -1,7 +1,7 @@
 "use strict";
 
 // Class definition
-var KTAppEcommerceProducts = function () {
+var KTAppEcommerceCategories = function () {
     // Shared variables
     var table;
     var datatable;
@@ -14,9 +14,8 @@ var KTAppEcommerceProducts = function () {
             'order': [],
             'pageLength': 10,
             'columnDefs': [
-                { render: DataTable.render.number(',', '.', 2), targets: 4},
                 { orderable: false, targets: 0 }, // Disable ordering on column 0 (checkbox)
-                { orderable: false, targets: 7 }, // Disable ordering on column 7 (actions)
+                { orderable: false, targets: 3 }, // Disable ordering on column 3 (actions)
             ]
         });
 
@@ -28,28 +27,16 @@ var KTAppEcommerceProducts = function () {
 
     // Search Datatable --- official docs reference: https://datatables.net/reference/api/search()
     var handleSearchDatatable = () => {
-        const filterSearch = document.querySelector('[data-kt-ecommerce-product-filter="search"]');
+        const filterSearch = document.querySelector('[data-kt-ecommerce-category-filter="search"]');
         filterSearch.addEventListener('keyup', function (e) {
             datatable.search(e.target.value).draw();
-        });
-    }
-
-    // Handle status filter dropdown
-    var handleStatusFilter = () => {
-        const filterStatus = document.querySelector('[data-kt-ecommerce-product-filter="status"]');
-        $(filterStatus).on('change', e => {
-            let value = e.target.value;
-            if(value === 'all'){
-                value = '';
-            }
-            datatable.column(6).search(value).draw();
         });
     }
 
     // Delete cateogry
     var handleDeleteRows = () => {
         // Select all delete buttons
-        const deleteButtons = table.querySelectorAll('[data-kt-ecommerce-product-filter="delete_row"]');
+        const deleteButtons = table.querySelectorAll('[data-kt-ecommerce-category-filter="delete_row"]');
 
         deleteButtons.forEach(d => {
             // Delete button on click
@@ -60,11 +47,11 @@ var KTAppEcommerceProducts = function () {
                 const parent = e.target.closest('tr');
 
                 // Get category name
-                const productName = parent.querySelector('[data-kt-ecommerce-product-filter="product_name"]').innerText;
+                const categoryName = parent.querySelector('[data-kt-ecommerce-category-filter="category_name"]').innerText;
 
                 // SweetAlert2 pop up --- official docs reference: https://sweetalert2.github.io/
                 Swal.fire({
-                    text: "Are you sure you want to delete " + productName + "?",
+                    text: "Are you sure you want to delete " + categoryName + "?",
                     icon: "warning",
                     showCancelButton: true,
                     buttonsStyling: false,
@@ -77,7 +64,7 @@ var KTAppEcommerceProducts = function () {
                 }).then(function (result) {
                     if (result.value) {
                         Swal.fire({
-                            text: "You have deleted " + productName + "!.",
+                            text: "You have deleted " + categoryName + "!.",
                             icon: "success",
                             buttonsStyling: false,
                             confirmButtonText: "Ok, got it!",
@@ -90,7 +77,7 @@ var KTAppEcommerceProducts = function () {
                         });
                     } else if (result.dismiss === 'cancel') {
                         Swal.fire({
-                            text: productName + " was not deleted.",
+                            text: categoryName + " was not deleted.",
                             icon: "error",
                             buttonsStyling: false,
                             confirmButtonText: "Ok, got it!",
@@ -108,7 +95,7 @@ var KTAppEcommerceProducts = function () {
     // Public methods
     return {
         init: function () {
-            table = document.querySelector('#kt_ecommerce_products_table');
+            table = document.querySelector('#kt_ecommerce_category_table');
 
             if (!table) {
                 return;
@@ -116,7 +103,6 @@ var KTAppEcommerceProducts = function () {
 
             initDatatable();
             handleSearchDatatable();
-            handleStatusFilter();
             handleDeleteRows();
         }
     };
@@ -124,5 +110,5 @@ var KTAppEcommerceProducts = function () {
 
 // On document ready
 KTUtil.onDOMContentLoaded(function () {
-    KTAppEcommerceProducts.init();
+    KTAppEcommerceCategories.init();
 });

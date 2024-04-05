@@ -1,8 +1,7 @@
 "use strict";
 
 // Class definition
-var KTCustomersExport = function () {
-    var element;
+var KTModalAddAddress = function () {
     var submitButton;
     var cancelButton;
 	var closeButton;
@@ -17,13 +16,48 @@ var KTCustomersExport = function () {
 			form,
 			{
 				fields: {
-                    'date': {
+                    'name': {
 						validators: {
 							notEmpty: {
-								message: 'Date range is required'
+								message: 'Address name is required'
 							}
 						}
 					},
+					'country': {
+						validators: {
+							notEmpty: {
+								message: 'Country is required'
+							}
+						}
+					},
+					'address1': {
+						validators: {
+							notEmpty: {
+								message: 'Address 1 is required'
+							}
+						}
+					},
+					'city': {
+						validators: {
+							notEmpty: {
+								message: 'City is required'
+							}
+						}
+					},
+					'state': {
+						validators: {
+							notEmpty: {
+								message: 'State is required'
+							}
+						}
+					},
+					'postcode': {
+						validators: {
+							notEmpty: {
+								message: 'Postcode is required'
+							}
+						}
+					}
 				},
 				plugins: {
 					trigger: new FormValidation.plugins.Trigger(),
@@ -36,9 +70,15 @@ var KTCustomersExport = function () {
 			}
 		);
 
+		// Revalidate country field. For more info, plase visit the official plugin site: https://select2.org/
+        $(form.querySelector('[name="country"]')).on('change', function() {
+            // Revalidate the field when an option is chosen
+            validator.revalidateField('country');
+        });
+
 		// Action buttons
 		submitButton.addEventListener('click', function (e) {
-			e.preventDefault();      
+			e.preventDefault();
 
 			// Validate form before submit
 			if (validator) {
@@ -48,14 +88,14 @@ var KTCustomersExport = function () {
 					if (status == 'Valid') {
 						submitButton.setAttribute('data-kt-indicator', 'on');
 
-                        // Disable submit button whilst loading
-                        submitButton.disabled = true;
+						// Disable submit button whilst loading
+						submitButton.disabled = true;
 
 						setTimeout(function() {
 							submitButton.removeAttribute('data-kt-indicator');
 							
 							Swal.fire({
-								text: "Customer list has been successfully exported!",
+								text: "Form has been successfully submitted!",
 								icon: "success",
 								buttonsStyling: false,
 								confirmButtonText: "Ok, got it!",
@@ -64,14 +104,13 @@ var KTCustomersExport = function () {
 								}
 							}).then(function (result) {
 								if (result.isConfirmed) {
+									// Hide modal
 									modal.hide();
 
-                                    // Enable submit button after loading
-                                    submitButton.disabled = false;        
+									// Enable submit button after loading
+									submitButton.disabled = false;
 								}
-							});
-
-							//form.submit(); // Submit form
+							});							
 						}, 2000);   						
 					} else {
 						Swal.fire({
@@ -105,7 +144,7 @@ var KTCustomersExport = function () {
             }).then(function (result) {
                 if (result.value) {
                     form.reset(); // Reset form	
-                    modal.hide(); // Hide modal		
+                    modal.hide(); // Hide modal				
                 } else if (result.dismiss === 'cancel') {
                     Swal.fire({
                         text: "Your form has not been cancelled!.",
@@ -137,7 +176,7 @@ var KTCustomersExport = function () {
             }).then(function (result) {
                 if (result.value) {
                     form.reset(); // Reset form	
-                    modal.hide(); // Hide modal			
+                    modal.hide(); // Hide modal				
                 } else if (result.dismiss === 'cancel') {
                     Swal.fire({
                         text: "Your form has not been cancelled!.",
@@ -150,40 +189,26 @@ var KTCustomersExport = function () {
                     });
                 }
             });
-		});
-    }
-
-    var initForm = function () {
-        const datepicker = form.querySelector("[name=date]");
-        
-        // Handle datepicker range -- For more info on flatpickr plugin, please visit: https://flatpickr.js.org/
-        $(datepicker).flatpickr({
-            altInput: true,
-            altFormat: "F j, Y",
-            dateFormat: "Y-m-d",
-            mode: "range"
-        });
+		})
     }
 
     return {
         // Public functions
         init: function () {
             // Elements
-            element = document.querySelector('#kt_customers_export_modal');
-            modal = new bootstrap.Modal(element);
+            modal = new bootstrap.Modal(document.querySelector('#kt_modal_add_address'));
 
-            form = document.querySelector('#kt_customers_export_form');
-            submitButton = form.querySelector('#kt_customers_export_submit');
-            cancelButton = form.querySelector('#kt_customers_export_cancel');
-			closeButton = element.querySelector('#kt_customers_export_close');
+            form = document.querySelector('#kt_modal_add_address_form');
+            submitButton = form.querySelector('#kt_modal_add_address_submit');
+            cancelButton = form.querySelector('#kt_modal_add_address_cancel');
+			closeButton = form.querySelector('#kt_modal_add_address_close');
 
             handleForm();
-            initForm();
         }
     };
 }();
 
 // On document ready
 KTUtil.onDOMContentLoaded(function () {
-    KTCustomersExport.init();
+	KTModalAddAddress.init();
 });
