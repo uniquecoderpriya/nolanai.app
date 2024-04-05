@@ -1,74 +1,138 @@
 "use strict";
 
-var KTSupportCenterGeneral = function() {
-    var menuWrapper;
+// Class definition
+var KTAccountBillingGeneral = function () {
+    // Private variables
+    var cancelSubscriptionButton;
 
-    var initInstance = function(element) {
-        var elements = element;
+    // Private functions
+    var handlePlan = function () {
+        cancelSubscriptionButton.addEventListener('click', function (e) {
+            e.preventDefault();
 
-        if ( typeof elements === 'undefined' ) {
-            elements = document.querySelectorAll('.highlight');
-        }
-
-        if ( elements && elements.length > 0 ) {
-            for ( var i = 0; i < elements.length; ++i ) {
-                var highlight = elements[i];
-                var copy = highlight.querySelector('.highlight-copy');
-
-                if ( copy ) {
-                    var clipboard = new ClipboardJS(copy, {
-                        target: function(trigger) {
-                            var highlight = trigger.closest('.highlight');
-                            var el = highlight.querySelector('.tab-pane.active');
-
-                            if ( el == null ) {
-                                el = highlight.querySelector('.highlight-code');
-                            }
-
-                            return el;
-                        }
-                    });
-
-                    clipboard.on('success', function(e) {
-                        var caption = e.trigger.innerHTML;
-
-                        e.trigger.innerHTML = 'copied';
-                        e.clearSelection();
-
-                        setTimeout(function() {
-                            e.trigger.innerHTML = caption;
-                        }, 2000);
-                    });
+            swal.fire({
+                text: "Are you sure you would like to cancel your subscription ?",
+                icon: "warning",
+                buttonsStyling: false,
+                showDenyButton: true,
+                confirmButtonText: "Yes",
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    denyButton: "btn btn-light-danger"
                 }
-            }
-        }
-    }
-
-    var handleMenuScroll = function() {
-        var menuActiveItem = menuWrapper.querySelector(".menu-link.active");
-
-        if ( !menuActiveItem ) {
-            return;
-        } 
-
-        if ( KTUtil.isVisibleInContainer(menuActiveItem, menuWrapper) === true) {
-            return;
-        }
-
-        menuWrapper.scroll({
-            top: KTUtil.getRelativeTopPosition(menuActiveItem, menuWrapper),
-            behavior: 'smooth'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        text: 'Your subscription has been canceled.', 
+                        icon: 'success',
+                        confirmButtonText: "Ok",
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: "btn btn-light-primary"
+                        }
+                    })
+                } 
+            });
         });
     }
 
+    var handleCardDelete = function() {
+        KTUtil.on(document.body,  '[data-kt-billing-action="card-delete"]', 'click', function(e) {
+            e.preventDefault();
+
+            var el = this;
+
+            swal.fire({
+                text: "Are you sure you would like to delete selected card ?",
+                icon: "warning",
+                buttonsStyling: false,
+                showDenyButton: true,
+                confirmButtonText: "Yes",
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    denyButton: "btn btn-light-danger"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    el.setAttribute('data-kt-indicator', 'on');            
+                    el.disabled = true;
+
+                    setTimeout(function() {
+                        Swal.fire({
+                            text: 'Your selected card has been successfully deleted', 
+                            icon: 'success',
+                            confirmButtonText: "Ok",
+                            buttonsStyling: false,
+                            customClass: {
+                                confirmButton: "btn btn-light-primary"
+                            }
+                        }).then((result) => {
+                            el.closest('[data-kt-billing-element="card"]').remove();
+                        });
+                    }, 2000);
+                } 
+            });   
+        });
+    } 
+
+    var handleAddressDelete = function() {
+        KTUtil.on(document.body,  '[data-kt-billing-action="address-delete"]', 'click', function(e) {
+            e.preventDefault();
+
+            var el = this;
+
+            swal.fire({
+                text: "Are you sure you would like to delete selected address ?",
+                icon: "warning",
+                buttonsStyling: false,
+                showDenyButton: true,
+                confirmButtonText: "Yes",
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    denyButton: "btn btn-light-danger"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    el.setAttribute('data-kt-indicator', 'on');            
+                    el.disabled = true;
+
+                    setTimeout(function() {
+                        Swal.fire({
+                            text: 'Your selected address has been successfully deleted', 
+                            icon: 'success',
+                            confirmButtonText: "Ok",
+                            buttonsStyling: false,
+                            customClass: {
+                                confirmButton: "btn btn-light-primary"
+                            }
+                        }).then((result) => {
+                            el.closest('[data-kt-billing-element="address"]').remove();
+                        });
+                    }, 2000);
+                } 
+            });   
+        });
+    }
+
+    // Public methods
     return {
-        init: function() {
-            initInstance();
+        init: function () {            
+            cancelSubscriptionButton = document.querySelector('#kt_account_billing_cancel_subscription_btn');
+
+            if ( cancelSubscriptionButton ) {
+                handlePlan();
+            }            
+
+            handleCardDelete();
+            handleAddressDelete();
         }
-    };
+    }
 }();
 
 // On document ready
 KTUtil.onDOMContentLoaded(function() {
-    KTSupportCenterGeneral.init();
+    KTAccountBillingGeneral.init();
 });
